@@ -23,7 +23,7 @@
 #***************************************************************************
 
 '''
-Fluxtwitter 0.6 - 19.08.2011
+Fluxtwitter 0.7 - 21.05.2012
 
 author: Yorik van Have
 url: http://yorik.uncreated.net
@@ -40,6 +40,7 @@ History:
 0.4 - 24.04.2010 - Using monsterID in case twitter avatar doesn't work
 0.5 - 03.10.2010 - Implemented OAuth authentication
 0.6 - 19.08.2011 - Bugfixes and added text output option
+0.7 - 21.05.2012 - Added libnotify and custom icon
 
 Usage:
 
@@ -67,10 +68,22 @@ Options:
 
 import sys, os, gtk, gobject, urllib, re, subprocess, time, string, hashlib, simplejson, getopt
 from twitter import Api, User
+
+pynotify = None
 try:
     import oauth.oauth as oauth
 except ImportError:
-    import oauth
+    try:
+        import oauth
+    except:
+        print "Python Oauth must be installed!"
+        sys.exit()
+try:
+    import pynotify
+except:
+    print "Python Notify is not installed. Notifications are disabled"
+else:
+    pynotify.init("Fluxtwitter")
 
 # defaults
 
@@ -90,6 +103,7 @@ REQUEST_TOKEN_URL = 'https://twitter.com/oauth/request_token'
 ACCESS_TOKEN_URL = 'https://twitter.com/oauth/access_token'
 AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize'
 SIGNIN_URL = 'http://twitter.com/oauth/authenticate'
+NOTIFY = True
 
 fluxicon=[
 "16 16 17 1",
@@ -453,8 +467,13 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		self.manager.insert_action_group(ag, 0)
 		self.manager.add_ui_from_string(menu)
 		self.menu = self.manager.get_widget('/Twitter/Menu/About').props.parent
-		self.icon = gtk.gdk.pixbuf_new_from_xpm_data(fluxicon)
-		self.iconnew = gtk.gdk.pixbuf_new_from_xpm_data(iconnew)
+                customicon = os.path.expanduser('~/.icons/twitter.png')
+                if os.path.exists(customicon):
+                    self.icon = gtk.gdk.pixbuf_new_from_file(customicon)
+                    self.iconnew = self.icon
+                else:
+                    self.icon = gtk.gdk.pixbuf_new_from_xpm_data(fluxicon)
+                    self.iconnew = gtk.gdk.pixbuf_new_from_xpm_data(iconnew)
 		self.set_from_pixbuf(self.icon)
 		self.getconfig()
 		self.set_visible(True)
@@ -569,6 +588,14 @@ class TwitterStatusIcon(gtk.StatusIcon):
 				     'icon':tweetpb}
 			self.tweets.insert(0,thistweet) #adding our new tweet to the top of the list
 
+                        # notify
+                        if pynotify:
+                            note = pynotify.Notification(statuses[i].user.screen_name,statuses[i].text)
+                            note.set_icon_from_pixbuf(tweetpb)
+                            #note.set_timeout(3)
+                            #note.attach_to_widget(self) deprecated?
+                            note.show()
+
 		# if list window is visible, don't stack
 		if self.isTweet: self.tweets = self.tweets[:self.displaytweets]
 
@@ -613,6 +640,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		self.compositecolor = COMPOSITECOLOR
 		self.stackmode = STACKMODE
                 self.accesstoken = ACCESSTOKEN
+                self.notify = NOTIFY
 		configfile = os.path.expanduser('~') + os.sep + '.fluxtwitterrc'
 		if os.path.isfile(configfile):
                         print "reading config file"
@@ -631,6 +659,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 					elif key == "compositecolor": self.compositecolor = string.atoi(value,0)
 					elif key == "stackmode": self.stackmode = bool(int(value))
                                         elif key == "accesstoken": self.accesstoken = oauth.OAuthToken.from_string(value)
+                                        elif key == "notify": self.notify = bool(int(value))
 			file.close()
 		else:
 			print "Creating config file..."
@@ -656,6 +685,8 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		file.write('toolbarheight = ' + str(self.toolbarheight) + '\n')
 		file.write('# Stack mode (if tweets will stack until you read them\n')
 		file.write('stackmode = ' + str(int(self.stackmode)) + '\n')
+		file.write('# Notify (use the notifications system\n')
+		file.write('notify = ' + str(int(self.notify)) + '\n')
                 if self.accesstoken:
                         file.write('# Access token (automatically generated once you allow it on twitter\n')
                         file.write('accesstoken = ' + self.accesstoken.to_string() + '\n')
@@ -664,7 +695,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 	def config(self,data):
 		dialog = gtk.Dialog()
 		dialog.set_title('Fluxtwitter settings')
-		table = gtk.Table(8,2)
+		table = gtk.Table(9,2)
 		c1 = gtk.Entry()
 		c1.set_text(str(self.displaytweets))
 		c1.set_tooltip_text('Number of tweets to display')
@@ -689,6 +720,9 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		c8 = gtk.ToggleButton()
 		c8.set_active(self.stackmode)
 		c8.set_tooltip_text('Check this for tweets to stack until you read them')
+		c9 = gtk.ToggleButton()
+		c9.set_active(self.notify)
+		c9.set_tooltip_text('Check this to use the desktop notification system')
 		table.attach(gtk.Label('Nr of tweets '),0,1,0,1)
 		table.attach(c1,1,2,0,1)
 		table.attach(gtk.Label('Web browser '),0,1,1,2)
@@ -705,6 +739,8 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		table.attach(c7,1,2,6,7)
 		table.attach(gtk.Label('Stack mode '),0,1,7,8)
 		table.attach(c8,1,2,7,8)
+		table.attach(gtk.Label('Notify '),0,1,8,9)
+		table.attach(c9,1,2,8,9)
 		dialog.vbox.pack_start(table)
 		dialog.show_all()
 		cancel_button = dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
@@ -720,6 +756,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 			self.toolbarheight = int(c6.get_text())
 			self.compositecolor = string.atoi(c7.get_text(),0)
 			self.stackmode = c8.get_active()
+                        self.notify = c9.get_active()
 			self.writeconfig()
 		dialog.destroy()
 
