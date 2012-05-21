@@ -103,7 +103,7 @@ REQUEST_TOKEN_URL = 'https://twitter.com/oauth/request_token'
 ACCESS_TOKEN_URL = 'https://twitter.com/oauth/access_token'
 AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize'
 SIGNIN_URL = 'http://twitter.com/oauth/authenticate'
-NOTIFY = True
+NOTIFY = True # if we use libnotify
 
 fluxicon=[
 "16 16 17 1",
@@ -258,6 +258,8 @@ if LOGGING:
         fsock = open('/var/log/fluxtwitter.log', 'w')
         sys.stdout = fsock
         sys.stderr = fsock
+
+# OAuth stuff ##################################################################
 
 class OAuthApi(Api):
     "OAuthApi code from http://oauth-python-twitter.googlecode.com"
@@ -437,6 +439,7 @@ class OAuthApi(Api):
         self._CheckForTwitterError(data)
         return User.NewFromJsonDict(data)
 
+# Twitter widget ########################################################################
 
 class TwitterStatusIcon(gtk.StatusIcon):
 	def __init__(self):
@@ -501,7 +504,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		self.tweetdialog.set_title('twitter - '+self.username)
 		self.tweetdialog.set_icon(self.icon)
 		self.tweetdialog.set_border_width(5)
-		self.tweetdialog.set_size_request(280, 500)
+		self.tweetdialog.set_size_request(180, 500)
 		self.layout = gtk.ScrolledWindow()
 		self.layout.set_policy(gtk.POLICY_NEVER,gtk.POLICY_AUTOMATIC)
 		self.vbox = gtk.VBox()
@@ -570,7 +573,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 				# if everything fails, use default icon
 				tweetpb = self.icon
 				
-			tweetpb = tweetpb.scale_simple(48,48,gtk.gdk.INTERP_BILINEAR)	
+			tweetpb = tweetpb.scale_simple(32,32,gtk.gdk.INTERP_BILINEAR)	
 			tweettext = statuses[i].text.replace('&ccedil;','c')
 			tweettext = tweettext.replace('&atilde;','a')
 			tweettext = tweettext.replace("'","")
@@ -607,7 +610,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 	def rebuildTable(self):
 		print "building table with",len(self.tweets),"items"
 		newtable = gtk.Table(len(self.tweets),2)
-		newtable.set_row_spacings(10)
+		#newtable.set_row_spacings(10)
 		for i in range(len(self.tweets)):
 			label = gtk.Label()
 			label.set_line_wrap(True)
@@ -615,6 +618,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 			label.set_markup(self.tweets[i]['tweet'])
 			label.set_selectable(True)
 			# label.connect("activate-current-link",self.clicked) # not really working
+                        label.connect("size-allocate",self.resizeLabel)
 			newtable.attach(label,1,2,i,i+1)
 			icon = gtk.Image()
 			icon.set_from_pixbuf(self.tweets[i]['icon'])
@@ -629,6 +633,9 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		if self.table: self.vbox.remove(self.table)
 		self.vbox.pack_start(newtable)
 		self.table = newtable
+
+        def resizeLabel(self,label,alloc):
+            label.set_size_request(alloc.width,-1)
 
 	def getconfig(self):
 		self.displaytweets = DISPLAYTWEETS
