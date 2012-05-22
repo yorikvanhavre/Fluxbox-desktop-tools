@@ -1,0 +1,7 @@
+This repository contains 2 python applications, mainly made for the fluxbox desktop (but will also work on other linux desktops.
+
+- Fluxweather.py: A very simple system tray app that displays a weather icon, a tooltip with temperature and previsions, and can also display a satellite map.
+
+- Fluxtwitter.py: A simple system tray app that retrieves and displays your twitter (and in the future facebook) timeline.
+
+Both apps are under GPL license, feel free to use in any way you like!
