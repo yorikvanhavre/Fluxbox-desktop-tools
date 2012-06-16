@@ -89,6 +89,8 @@ else:
 
 CONSUMERKEY = "G2EgGMNLFAJxvebsuv9D8A"
 CONSUMERSECRET = "zstJsJxBAaND3ria36Mo6khdgyBEgc9gyz9tDdgg"
+FACEAPPKEY = "416031718430708"
+FACEAPPSECRET = "4cb953c607038d43f782ee67fc58bb22"
 ACCESSTOKEN = None
 DISPLAYTWEETS = 8 # minimum number of tweets displayed
 INTERVAL = 120 # update interval in seconds
@@ -104,6 +106,8 @@ ACCESS_TOKEN_URL = 'https://twitter.com/oauth/access_token'
 AUTHORIZATION_URL = 'http://twitter.com/oauth/authorize'
 SIGNIN_URL = 'http://twitter.com/oauth/authenticate'
 NOTIFY = True # if we use libnotify
+ICON = "builtin" # use "builtin" for builtin icon
+ICONNEW = "builtin" # use "builtin" for builtin icon
 
 fluxicon=[
 "16 16 17 1",
@@ -142,43 +146,6 @@ fluxicon=[
 "       +++  &&  "
 ]
 
-fluxiconalt=[
-"16 16 17 1",
-" 	c None",
-".	c #753F00",
-"+	c #804300",
-"@	c #884900",
-"#	c #914B00",
-"$	c #9D5300",
-"%	c #AC5C01",
-"&	c #B15F00",
-"*	c #BB6201",
-"=	c #C06500",
-"-	c #D17000",
-";	c #DA7500",
-">	c #DE7800",
-",	c #E67903",
-"'	c #EE7E00",
-")	c #F68500",
-"!	c #FE8600",
-" %>,,,>=@       ",
-" !     +*'>     ",
-" &@ .-%   %!@   ",
-" > >- #'.)$&!@  ",
-" '#&    !   @!  ",
-" ,,    ,-!>  '; ",
-" >,    !)')  ,, ",
-" ,'    !=!) .-, ",
-" ,%%   *!)'>!>! ",
-" ' '    ')'-$.*#",
-" '  >>,)*     +=",
-" #=  !%       $%",
-"  '   ,)#     ; ",
-"   '+>'$-)@   ' ",
-"    >'+   !' '  ",
-"      =,,>+ )@  "
-]
-
 iconnew = [
 "16 16 17 1",
 " 	c None",
@@ -214,43 +181,6 @@ iconnew = [
 "    =,%$=$;))); ",
 "     .=,,,=$)). ",
 "       .$+  .+  "
-]
-
-iconnewalt = [
-"16 16 17 1",
-" 	c None",
-".	c #130D07",
-"+	c #251300",
-"@	c #412500",
-"#	c #6F4203",
-"$	c #946405",
-"%	c #8C6B41",
-"&	c #BE7400",
-"*	c #A17F48",
-"=	c #B78A00",
-"-	c #9D9489",
-";	c #F89400",
-">	c #E7BF00",
-",	c #FDBF00",
-"'	c #D8CFC7",
-")	c #FEDC00",
-"!	c #FCFEFA",
-" +++@++.        ",
-" @;;;;;;&$+     ",
-" .;;;&&;;;&#    ",
-" +;&-!'%;$''#   ",
-" @;'!!!!%!!!'@  ",
-" #$!!!!--.-!!$+ ",
-" $*!!!!....!!$# ",
-" &$!!!!....!!=$ ",
-" &&'!!!-.$*-#=$ ",
-" $,$!!!!-$==>)= ",
-" @,,&*-$>)))))>.",
-"  =,,$>)))))))>.",
-"  @,,,=$>)))))= ",
-"   @>=$==$>)))@ ",
-"    +$>)))$=)$  ",
-"      .+@+  @   "
 ]
 
 # debug logging
@@ -470,15 +400,18 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		self.manager.insert_action_group(ag, 0)
 		self.manager.add_ui_from_string(menu)
 		self.menu = self.manager.get_widget('/Twitter/Menu/About').props.parent
-                customicon = os.path.expanduser('~/.icons/twitter.png')
-                if os.path.exists(customicon):
-                    self.icon = gtk.gdk.pixbuf_new_from_file(customicon)
-                    self.iconnew = self.icon
-                else:
-                    self.icon = gtk.gdk.pixbuf_new_from_xpm_data(fluxicon)
-                    self.iconnew = gtk.gdk.pixbuf_new_from_xpm_data(iconnew)
-		self.set_from_pixbuf(self.icon)
 		self.getconfig()
+                self.icon = gtk.gdk.pixbuf_new_from_xpm_data(fluxicon)
+                self.iconnew = gtk.gdk.pixbuf_new_from_xpm_data(iconnew)
+                if self.iconpath:
+                    if self.iconpath != "builtin":
+                        if os.path.exists(self.iconpath):
+                            self.icon = gtk.gdk.pixbuf_new_from_file(self.iconpath)
+                if self.iconnewpath:
+                    if self.iconnewpath != "builtin":
+                        if os.path.exists(self.iconnewpath):
+                            self.iconnew = gtk.gdk.pixbuf_new_from_file(self.iconnewpath)
+		self.set_from_pixbuf(self.icon)
 		self.set_visible(True)
 		self.isTweet = False
 		self.connect('popup-menu', self.popup_menu)
@@ -568,7 +501,10 @@ class TwitterStatusIcon(gtk.StatusIcon):
 				pbl = gtk.gdk.PixbufLoader()
 				pbl.write(iconfile.read())
 				tweetpb = pbl.get_pixbuf()
-				pbl.close()
+                                try:
+                                    pbl.close()
+                                except:
+                                    pass
 			if not tweetpb:
 				# if everything fails, use default icon
 				tweetpb = self.icon
@@ -593,11 +529,14 @@ class TwitterStatusIcon(gtk.StatusIcon):
 
                         # notify
                         if pynotify:
-                            note = pynotify.Notification(statuses[i].user.screen_name,statuses[i].text)
-                            note.set_icon_from_pixbuf(tweetpb)
-                            #note.set_timeout(3)
-                            #note.attach_to_widget(self) deprecated?
-                            note.show()
+                            try:
+                                note = pynotify.Notification(statuses[i].user.screen_name,statuses[i].text)
+                                note.set_icon_from_pixbuf(tweetpb)
+                                #note.set_timeout(3)
+                                #note.attach_to_widget(self) deprecated?
+                                note.show()
+                            except:
+                                pass
 
 		# if list window is visible, don't stack
 		if self.isTweet: self.tweets = self.tweets[:self.displaytweets]
@@ -648,6 +587,8 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		self.stackmode = STACKMODE
                 self.accesstoken = ACCESSTOKEN
                 self.notify = NOTIFY
+                self.iconpath = ICON
+                self.iconnewpath = ICONNEW
 		configfile = os.path.expanduser('~') + os.sep + '.fluxtwitterrc'
 		if os.path.isfile(configfile):
                         print "reading config file"
@@ -667,6 +608,8 @@ class TwitterStatusIcon(gtk.StatusIcon):
 					elif key == "stackmode": self.stackmode = bool(int(value))
                                         elif key == "accesstoken": self.accesstoken = oauth.OAuthToken.from_string(value)
                                         elif key == "notify": self.notify = bool(int(value))
+                                        elif key == "iconpath": self.iconpath = value
+                                        elif key == "iconnewpath": self.iconnewpath = value
 			file.close()
 		else:
 			print "Creating config file..."
@@ -694,6 +637,10 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		file.write('stackmode = ' + str(int(self.stackmode)) + '\n')
 		file.write('# Notify (use the notifications system\n')
 		file.write('notify = ' + str(int(self.notify)) + '\n')
+		file.write('# Idle icon\n')
+		file.write('iconpath = ' + str(self.iconpath) + '\n')
+		file.write('# New tweets icon\n')
+		file.write('iconnewpath = ' + str(self.iconnewpath) + '\n')
                 if self.accesstoken:
                         file.write('# Access token (automatically generated once you allow it on twitter\n')
                         file.write('accesstoken = ' + self.accesstoken.to_string() + '\n')
@@ -702,7 +649,7 @@ class TwitterStatusIcon(gtk.StatusIcon):
 	def config(self,data):
 		dialog = gtk.Dialog()
 		dialog.set_title('Fluxtwitter settings')
-		table = gtk.Table(9,2)
+		table = gtk.Table(11,2)
 		c1 = gtk.Entry()
 		c1.set_text(str(self.displaytweets))
 		c1.set_tooltip_text('Number of tweets to display')
@@ -730,6 +677,12 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		c9 = gtk.ToggleButton()
 		c9.set_active(self.notify)
 		c9.set_tooltip_text('Check this to use the desktop notification system')
+		c10 = gtk.Entry()
+		c10.set_text(self.iconpath)
+		c10.set_tooltip_text('Icon for idle status. Use "builtin" for builtin icon')
+		c11 = gtk.Entry()
+		c11.set_text(self.iconnewpath)
+		c11.set_tooltip_text('Icon for new tweets. Use "builtin" for builtin icon')
 		table.attach(gtk.Label('Nr of tweets '),0,1,0,1)
 		table.attach(c1,1,2,0,1)
 		table.attach(gtk.Label('Web browser '),0,1,1,2)
@@ -748,6 +701,10 @@ class TwitterStatusIcon(gtk.StatusIcon):
 		table.attach(c8,1,2,7,8)
 		table.attach(gtk.Label('Notify '),0,1,8,9)
 		table.attach(c9,1,2,8,9)
+		table.attach(gtk.Label('Idle icon '),0,1,9,10)
+		table.attach(c10,1,2,9,10)
+		table.attach(gtk.Label('New tweet icon '),0,1,10,11)
+		table.attach(c11,1,2,10,11)
 		dialog.vbox.pack_start(table)
 		dialog.show_all()
 		cancel_button = dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
@@ -764,6 +721,8 @@ class TwitterStatusIcon(gtk.StatusIcon):
 			self.compositecolor = string.atoi(c7.get_text(),0)
 			self.stackmode = c8.get_active()
                         self.notify = c9.get_active()
+                        self.iconpath = c10.get_text()
+                        self.iconnewpath = c11.get_text()
 			self.writeconfig()
 		dialog.destroy()
 
