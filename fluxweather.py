@@ -64,7 +64,7 @@ available options:
                        (condition + temperature)
                               '''
 
-def fetchweather(zip):
+def fetchweather(zip=ZIPCODE):
 	url = WEATHER_URL % zip
 	rss = parse(urllib.urlopen(url)).getroot()
 	forecasts = []
@@ -97,6 +97,25 @@ def getZipCode():
                 value = value.strip()
                 if key == "zipcode": zipcode = value
     return zipcode
+
+def getPixBuf(report=fetchweather()):
+    iconurl=report['descr'].split('"')[1]
+    iconfile=urllib.urlopen(iconurl)
+    pbl = gtk.gdk.PixbufLoader()
+    pbl.write(iconfile.read())
+    pb = pbl.get_pixbuf()
+    pbl.close()
+    return pb
+
+def getToolTip(report=fetchweather()):
+    forecasts = report['forecasts']
+    panel = report['title'] + '\n'+report['current_temp'] + '\260C ' + report['current_condition'] + '\n'
+    panel = panel + 'tomorrow: ' + forecasts[0]['low'] + '/' + forecasts[0]['high'] 
+    panel = panel + '\260C ' + forecasts[0]['condition'] + '\n'
+    panel = panel + 'day after: ' + forecasts[1]['low'] + '/' + forecasts[1]['high'] 
+    panel = panel + '\260C ' + forecasts[1]['condition']
+    panel = unicode(panel,'latin1')
+    return panel
 
 class TrackerStatusIcon(gtk.StatusIcon):
 	def __init__(self):
@@ -147,21 +166,8 @@ class TrackerStatusIcon(gtk.StatusIcon):
 
 	def update(self, data=None):
 		report = fetchweather(self.zip)
-		forecasts = report['forecasts']
-		panel = report['title'] + '\n'+report['current_temp'] + '\260C ' + report['current_condition'] + '\n'
-		panel = panel + 'tomorrow: ' + forecasts[0]['low'] + '/' + forecasts[0]['high'] 
-		panel = panel + '\260C ' + forecasts[0]['condition'] + '\n'
-		panel = panel + 'day after: ' + forecasts[1]['low'] + '/' + forecasts[1]['high'] 
-		panel = panel + '\260C ' + forecasts[1]['condition'] + '\n'
-		panel = unicode(panel,'latin1')
-		self.set_tooltip(panel)
-		iconurl=report['descr'].split('"')[1]
-		iconfile=urllib.urlopen(iconurl)
-		pbl = gtk.gdk.PixbufLoader()
-		pbl.write(iconfile.read())
-		pb = pbl.get_pixbuf()
-		pbl.close()
-		self.set_from_pixbuf(pb)
+		self.set_tooltip(getToolTip(report))
+		self.set_from_pixbuf(getPixBuf(report))
 		if not self.animated:
 			imfile=urllib.urlopen(self.map)
 			pbl = gtk.gdk.PixbufLoader()

@@ -111,23 +111,23 @@ ICONNEW = "builtin" # use "builtin" for builtin icon
 
 fluxicon=[
 "16 16 17 1",
-" 	c None",
-".	c #060911",
-"+	c #011136",
-"@	c #022274",
-"#	c #002CA7",
-"$	c #1E2F58",
-"%	c #313434",
-"&	c #3D360B",
-"*	c #0045DE",
-"=	c #505461",
-"-	c #7A6700",
-";	c #8B8B8B",
-">	c #B89F00",
-",	c #B6B8B5",
-"'	c #F9D900",
-")	c #DCDCD7",
-"!	c #FBFDFA",
+"   c None",
+".  c #060911",
+"+  c #011136",
+"@  c #022274",
+"#  c #002CA7",
+"$  c #1E2F58",
+"%  c #313434",
+"&  c #3D360B",
+"*  c #0045DE",
+"=  c #505461",
+"-  c #7A6700",
+";  c #8B8B8B",
+">  c #B89F00",
+",  c #B6B8B5",
+"'  c #F9D900",
+")  c #DCDCD7",
+"!  c #FBFDFA",
 "..++++..        ",
 " @#######@+     ",
 " @#@$$$@##@$.   ",
@@ -148,23 +148,23 @@ fluxicon=[
 
 iconnew = [
 "16 16 17 1",
-" 	c None",
-".	c #080A02",
-"+	c #102E06",
-"@	c #174A00",
-"#	c #444A3A",
-"$	c #545200",
-"%	c #2C7200",
-"&	c #72756B",
-"*	c #7C7B7D",
-"=	c #62A200",
-"-	c #8A8C89",
-";	c #B69B00",
-">	c #AFAFB0",
-",	c #93E100",
-"'	c #C4C3C5",
-")	c #FCDB00",
-"!	c #F7F9F6",
+"   c None",
+".  c #080A02",
+"+  c #102E06",
+"@  c #174A00",
+"#  c #444A3A",
+"$  c #545200",
+"%  c #2C7200",
+"&  c #72756B",
+"*  c #7C7B7D",
+"=  c #62A200",
+"-  c #8A8C89",
+";  c #B69B00",
+">  c #AFAFB0",
+",  c #93E100",
+"'  c #C4C3C5",
+")  c #FCDB00",
+"!  c #F7F9F6",
 " .++++++.       ",
 "  @%%%%%%%@.    ",
 "  +%@++@%%@+.   ",
@@ -372,479 +372,490 @@ class OAuthApi(Api):
 # Twitter widget ########################################################################
 
 class TwitterStatusIcon(gtk.StatusIcon):
-	def __init__(self):
-		gtk.StatusIcon.__init__(self)
-		
-		# creating the status icon with its menu
-		menu = '''
-			<ui>
-			 <menubar name="Twitter">
-			  <menu action="Menu">
-			   <menuitem action="Update"/>
-                           <menuitem action="Settings"/>
-			   <menuitem action="About"/>
-			   <menuitem action="Close"/>
-			  </menu>
-			 </menubar>
-			</ui>
-		'''
-		actions = [
-			('Menu',  None, 'Menu'),
-			('Update', gtk.STOCK_REFRESH, '_Update now', None, 'Update', self.update),
-			('Settings', gtk.STOCK_PREFERENCES, '_Settings...', None, 'Settings', self.config),
-			('About', gtk.STOCK_ABOUT, '_About...', None, 'About Fluxtwitter', self.about),
-			('Close', gtk.STOCK_CLOSE, '_Close', None, 'Close', self.close)]
-		ag = gtk.ActionGroup('Actions')
-		ag.add_actions(actions)
-		self.manager = gtk.UIManager()
-		self.manager.insert_action_group(ag, 0)
-		self.manager.add_ui_from_string(menu)
-		self.menu = self.manager.get_widget('/Twitter/Menu/About').props.parent
-		self.getconfig()
-                self.icon = gtk.gdk.pixbuf_new_from_xpm_data(fluxicon)
-                self.iconnew = gtk.gdk.pixbuf_new_from_xpm_data(iconnew)
-                if self.iconpath:
-                    if self.iconpath != "builtin":
-                        if os.path.exists(self.iconpath):
-                            self.icon = gtk.gdk.pixbuf_new_from_file(self.iconpath)
-                if self.iconnewpath:
-                    if self.iconnewpath != "builtin":
-                        if os.path.exists(self.iconnewpath):
-                            self.iconnew = gtk.gdk.pixbuf_new_from_file(self.iconnewpath)
-		self.set_from_pixbuf(self.icon)
-		self.set_visible(True)
-		self.isTweet = False
-		self.connect('popup-menu', self.popup_menu)
-		self.connect('activate', self.showtimeline)
-                self.api = OAuthApi(CONSUMERKEY, CONSUMERSECRET)
-                self.request_token = self.api.getRequestToken()
-                if not self.accesstoken:
-                        self.getpin()
-                else:
-                        self.launch()
+    def __init__(self):
+        gtk.StatusIcon.__init__(self)
+        
+        # creating the status icon with its menu
+        menu = '''
+            <ui>
+                <menubar name="Twitter">
+                    <menu action="Menu">
+                        <menuitem action="Update"/>
+                        <menuitem action="Settings"/>
+                        <menuitem action="About"/>
+                        <menuitem action="Close"/>
+                    </menu>
+                </menubar>
+            </ui>
+        '''
+        actions = [
+            ('Menu',  None, 'Menu'),
+            ('Update', gtk.STOCK_REFRESH, '_Update now', None, 'Update', self.update),
+            ('Settings', gtk.STOCK_PREFERENCES, '_Settings...', None, 'Settings', self.config),
+            ('About', gtk.STOCK_ABOUT, '_About...', None, 'About Fluxtwitter', self.about),
+            ('Close', gtk.STOCK_CLOSE, '_Close', None, 'Close', self.close)]
+        ag = gtk.ActionGroup('Actions')
+        ag.add_actions(actions)
+        self.manager = gtk.UIManager()
+        self.manager.insert_action_group(ag, 0)
+        self.manager.add_ui_from_string(menu)
+        self.menu = self.manager.get_widget('/Twitter/Menu/About').props.parent
+        self.getconfig()
+        self.icon = gtk.gdk.pixbuf_new_from_xpm_data(fluxicon)
+        self.iconnew = gtk.gdk.pixbuf_new_from_xpm_data(iconnew)
+        if self.iconpath:
+            if self.iconpath != "builtin":
+                if os.path.exists(self.iconpath):
+                    self.icon = gtk.gdk.pixbuf_new_from_file(self.iconpath)
+        if self.iconnewpath:
+            if self.iconnewpath != "builtin":
+                if os.path.exists(self.iconnewpath):
+                    self.iconnew = gtk.gdk.pixbuf_new_from_file(self.iconnewpath)
+        self.set_from_pixbuf(self.icon)
+        self.set_visible(True)
+        self.isTweet = False
+        self.connect('popup-menu', self.popup_menu)
+        self.connect('activate', self.showtimeline)
+        self.api = OAuthApi(CONSUMERKEY, CONSUMERSECRET)
+        self.request_token = self.api.getRequestToken()
+        if not self.accesstoken:
+            self.getpin()
+        else:
+            self.launch()
 
-        def launch(self):
-                # registrating
-                self.api = OAuthApi(CONSUMERKEY, CONSUMERSECRET, self.accesstoken)
-                self.username = self.api.GetUserInfo().name
+    def launch(self):
+        # registrating
+        self.api = OAuthApi(CONSUMERKEY, CONSUMERSECRET, self.accesstoken)
+        self.username = self.api.GetUserInfo().name
 
-		# creating the main dialog
-                self.set_tooltip(self.username + "'s timeline")
-		self.tweetdialog = gtk.Window()
-		self.tweetdialog.connect("destroy",self.showtimeline)
-		self.tweetdialog.connect("delete-event",self.showtimeline)
-		self.tweetdialog.connect('configure-event', self.updateBackground)
-		self.tweetdialog.set_title('twitter - '+self.username)
-		self.tweetdialog.set_icon(self.icon)
-		self.tweetdialog.set_border_width(5)
-		self.tweetdialog.set_size_request(180, 500)
-		self.layout = gtk.ScrolledWindow()
-		self.layout.set_policy(gtk.POLICY_NEVER,gtk.POLICY_AUTOMATIC)
-		self.vbox = gtk.VBox()
-		self.layout.add_with_viewport(self.vbox)
-		self.tweetdialog.add(self.layout)
-		self.layout.get_child().set_shadow_type(gtk.SHADOW_NONE)
-		self.layout.connect('scroll-child', self.updateBackground)
-		self.tweets = []
-		self.table = None
-		self.iteration = 1
-		self.updateBackground()
-		self.timeout = gobject.timeout_add(self.interval*1000,self.update)
-		self.update()
+        # creating the main dialog
+        self.set_tooltip(self.username + "'s timeline")
+        self.tweetdialog = gtk.Window()
+        self.tweetdialog.connect("destroy",self.showtimeline)
+        self.tweetdialog.connect("delete-event",self.showtimeline)
+        self.tweetdialog.connect('configure-event', self.updateBackground)
+        self.tweetdialog.set_title('twitter - '+self.username)
+        self.tweetdialog.set_icon(self.icon)
+        self.tweetdialog.set_border_width(5)
+        self.tweetdialog.set_size_request(180, 500)
+        self.layout = gtk.ScrolledWindow()
+        self.layout.set_policy(gtk.POLICY_NEVER,gtk.POLICY_AUTOMATIC)
+        self.vbox = gtk.VBox()
+        self.layout.add_with_viewport(self.vbox)
+        self.tweetdialog.add(self.layout)
+        self.layout.get_child().set_shadow_type(gtk.SHADOW_NONE)
+        self.layout.connect('scroll-child', self.updateBackground)
+        self.tweets = []
+        self.table = None
+        self.iteration = 1
+        self.updateBackground()
+        self.timeout = gobject.timeout_add(self.interval*1000,self.update)
+        self.update()
 
-	def update(self, data=None):
+    def update(self, data=None):
+        # updating from twitter
+        print "iteration",self.iteration,": fetching",self.timeout,"tweets on",time.strftime('%X %x %Z')
+        try:
+            statuses = self.api.GetFriendsTimeline(count=self.displaytweets)
+        except:
+            print "Error: Couldn't connect to Twitter server."
+            return True # even if we cannot connect, we continue trying next time
+        self.iteration += 1
+        extras = 0
+        if (not self.tweets):
+            extras = len(statuses)
+            self.set_from_pixbuf(self.iconnew)
+        elif (statuses[0].id != self.tweets[0]['id']):
+            self.set_from_pixbuf(self.iconnew)
+            for i in range(len(statuses)):
+                if statuses[i].id == self.tweets[0]['id']:
+                    extras = i
+                    break
+        if not extras:
+            print "no new tweet to display"
+            return True
+        print 'list currently has',len(self.tweets),' - adding',extras
+        
+        for i in range(extras-1,-1,-1):
 
-		# updating from twitter
-		print "iteration",self.iteration,": fetching",self.timeout,"tweets on",time.strftime('%X %x %Z')
-		try:
-			statuses = self.api.GetFriendsTimeline(count=self.displaytweets)
-		except:
-			print "Error: Couldn't connect to Twitter server."
-			return True # even if we cannot connect, we continue trying next time
-		self.iteration += 1
-		extras = 0
-		if (not self.tweets):
-			extras = len(statuses)
-			self.set_from_pixbuf(self.iconnew)
-		elif (statuses[0].id != self.tweets[0]['id']):
-			self.set_from_pixbuf(self.iconnew)
-			for i in range(len(statuses)):
-				if statuses[i].id == self.tweets[0]['id']:
-					extras = i
-					break
-		if not extras:
-			print "no new tweet to display"
-			return True
-		print 'list currently has',len(self.tweets),' - adding',extras
-		
-		for i in range(extras-1,-1,-1):
+            # retrieving all we need from the tweet
+            iconurl = statuses[i].user.GetProfileImageUrl()
+            iconfile=urllib.urlopen(iconurl)
+            print 'extra tweet',i,"from ",statuses[i].user.name," : ",statuses[i].text," ",iconurl
+            tweetpb = None
+            try:
+                pbl = gtk.gdk.PixbufLoader()
+                pbl.write(iconfile.read())
+                tweetpb = pbl.get_pixbuf()
+                pbl.close()
+            except:
+                print "error reading avatar file"
+            if not tweetpb:
+                # if icon is invalid, try to get a monsterid
+                h = hashlib.md5()
+                h.update(statuses[i].user.screen_name)
+                v = h.hexdigest()
+                url = "http://friedcellcollective.net/monsterid/"+v+"/48"
+                iconfile=urllib.urlopen(url)
+                pbl = gtk.gdk.PixbufLoader()
+                pbl.write(iconfile.read())
+                tweetpb = pbl.get_pixbuf()
+                try:
+                    pbl.close()
+                except:
+                    pass
+            if not tweetpb:
+                # if everything fails, use default icon
+                tweetpb = self.icon
+                
+            tweetpb = tweetpb.scale_simple(32,32,gtk.gdk.INTERP_BILINEAR)   
+            tweettext = statuses[i].text.replace('&ccedil;','c')
+            tweettext = tweettext.replace('&atilde;','a')
+            tweettext = tweettext.replace("'","")
+            tweettext = tweettext.replace("&","&amp;")
+            pat1 = re.compile(r"(^|[\n ])(([\w]+?://[\w\#$%&~.\-;:=,?@\[\]+]*)(/[\w\#$%&~/.\-;:=,?@\[\]+]*)?)", re.IGNORECASE | re.DOTALL)
+            pat2 = re.compile(r"(^|[\n ])(@([\w\#$%&~.\-;:=,?@\[\]+]*)(/[\w\#$%&~/.\-;:=,?@\[\]+]*)?)", re.IGNORECASE | re.DOTALL)
+            pat3 = re.compile(r"(^|[\n ])(#([\w\#$%&~.\-;:=,?@\[\]+]*)(/[\w\#$%&~/.\-;:=,?@\[\]+]*)?)", re.IGNORECASE | re.DOTALL)
+            tweettext = pat1.sub(r'\1<a href="\2">\3</a>', tweettext)
+            tweettext = pat2.sub(r'\1<a href="http://www.twitter.com/\3">\2</a>', tweettext)
+            tweettext = pat3.sub(r'\1<a href="http://www.twitter.com/#search?q=%23\3">\2</a>', tweettext)
+            # adding to our tweet list
+            thistweet = {'id':statuses[i].id,
+                         'user':statuses[i].user.screen_name,
+                         'tweet':tweettext,
+                         'icon':tweetpb}
+            self.tweets.insert(0,thistweet) #adding our new tweet to the top of the list
 
-			# retrieving all we need from the tweet
-			iconurl = statuses[i].user.GetProfileImageUrl()
-			iconfile=urllib.urlopen(iconurl)
-			print 'extra tweet',i,"from ",statuses[i].user.name," : ",statuses[i].text," ",iconurl
-                        tweetpb = None
-                        try:
-                                pbl = gtk.gdk.PixbufLoader()
-                                pbl.write(iconfile.read())
-                                tweetpb = pbl.get_pixbuf()
-                                pbl.close()
-                        except:
-                                print "error reading avatar file"
-			if not tweetpb:
-				# if icon is invalid, try to get a monsterid
-				h = hashlib.md5()
-				h.update(statuses[i].user.screen_name)
-				v = h.hexdigest()
-				url = "http://friedcellcollective.net/monsterid/"+v+"/48"
-				iconfile=urllib.urlopen(url)
-				pbl = gtk.gdk.PixbufLoader()
-				pbl.write(iconfile.read())
-				tweetpb = pbl.get_pixbuf()
-                                try:
-                                    pbl.close()
-                                except:
-                                    pass
-			if not tweetpb:
-				# if everything fails, use default icon
-				tweetpb = self.icon
-				
-			tweetpb = tweetpb.scale_simple(32,32,gtk.gdk.INTERP_BILINEAR)	
-			tweettext = statuses[i].text.replace('&ccedil;','c')
-			tweettext = tweettext.replace('&atilde;','a')
-			tweettext = tweettext.replace("'","")
-			tweettext = tweettext.replace("&","&amp;")
-			pat1 = re.compile(r"(^|[\n ])(([\w]+?://[\w\#$%&~.\-;:=,?@\[\]+]*)(/[\w\#$%&~/.\-;:=,?@\[\]+]*)?)", re.IGNORECASE | re.DOTALL)
-			pat2 = re.compile(r"(^|[\n ])(@([\w\#$%&~.\-;:=,?@\[\]+]*)(/[\w\#$%&~/.\-;:=,?@\[\]+]*)?)", re.IGNORECASE | re.DOTALL)
-			pat3 = re.compile(r"(^|[\n ])(#([\w\#$%&~.\-;:=,?@\[\]+]*)(/[\w\#$%&~/.\-;:=,?@\[\]+]*)?)", re.IGNORECASE | re.DOTALL)
-			tweettext = pat1.sub(r'\1<a href="\2">\3</a>', tweettext)
-			tweettext = pat2.sub(r'\1<a href="http://www.twitter.com/\3">\2</a>', tweettext)
-			tweettext = pat3.sub(r'\1<a href="http://www.twitter.com/#search?q=%23\3">\2</a>', tweettext)
-			# adding to our tweet list
-			thistweet = {'id':statuses[i].id,
-				     'user':statuses[i].user.screen_name,
-				     'tweet':tweettext,
-				     'icon':tweetpb}
-			self.tweets.insert(0,thistweet) #adding our new tweet to the top of the list
+            # notify
+            if pynotify:
+                try:
+                    note = pynotify.Notification(statuses[i].user.screen_name,statuses[i].text)
+                    note.set_icon_from_pixbuf(tweetpb)
+                    #note.set_timeout(3)
+                    #note.attach_to_widget(self) deprecated?
+                    note.show()
+                except:
+                    pass
 
-                        # notify
-                        if pynotify:
-                            try:
-                                note = pynotify.Notification(statuses[i].user.screen_name,statuses[i].text)
-                                note.set_icon_from_pixbuf(tweetpb)
-                                #note.set_timeout(3)
-                                #note.attach_to_widget(self) deprecated?
-                                note.show()
-                            except:
-                                pass
+        # if list window is visible, don't stack
+        if self.isTweet:
+            self.tweets = self.tweets[:self.displaytweets]
 
-		# if list window is visible, don't stack
-		if self.isTweet: self.tweets = self.tweets[:self.displaytweets]
+        # dont rebuild if window is open (buggy)
+        # if not self.isTweet: self.rebuildTable()
+        self.rebuildTable()
 
-		# dont rebuild if window is open (buggy)
-		# if not self.isTweet: self.rebuildTable()
-                self.rebuildTable()
-		return True
+        # if fluxweather is available, set the tooltip with it
+        try:
+            import fluxweather
+        except:
+            pass
+        else:
+            tooltip = self.username + "'s timeline\n\n"
+            tooltip += fluxweather.getToolTip()
+            self.set_tooltip(tooltip)
+        
+        return True
 
-	def rebuildTable(self):
-		print "building table with",len(self.tweets),"items"
-		newtable = gtk.Table(len(self.tweets),2)
-		#newtable.set_row_spacings(10)
-		for i in range(len(self.tweets)):
-			label = gtk.Label()
-			label.set_line_wrap(True)
-			label.set_width_chars(25)
-			label.set_markup(self.tweets[i]['tweet'])
-			label.set_selectable(True)
-			# label.connect("activate-current-link",self.clicked) # not really working
-                        label.connect("size-allocate",self.resizeLabel)
-			newtable.attach(label,1,2,i,i+1)
-			icon = gtk.Image()
-			icon.set_from_pixbuf(self.tweets[i]['icon'])
-			icon.set_tooltip_text(self.tweets[i]['user'])
-			button = gtk.Button()
-			button.set_relief(gtk.RELIEF_NONE)
-			button.set_image(icon)
-			button.set_name(str(i))
-			button.connect("clicked",self.clicked)
-			button.set_focus_on_click(False)
-			newtable.attach(button,0,1,i,i+1)
-		if self.table: self.vbox.remove(self.table)
-		self.vbox.pack_start(newtable)
-		self.table = newtable
+    def rebuildTable(self):
+        print "building table with",len(self.tweets),"items"
+        newtable = gtk.Table(len(self.tweets),2)
+        #newtable.set_row_spacings(10)
+        for i in range(len(self.tweets)):
+            label = gtk.Label()
+            label.set_line_wrap(True)
+            label.set_width_chars(25)
+            label.set_markup(self.tweets[i]['tweet'])
+            label.set_selectable(True)
+            # label.connect("activate-current-link",self.clicked) # not really working
+            label.connect("size-allocate",self.resizeLabel)
+            newtable.attach(label,1,2,i,i+1)
+            icon = gtk.Image()
+            icon.set_from_pixbuf(self.tweets[i]['icon'])
+            icon.set_tooltip_text(self.tweets[i]['user'])
+            button = gtk.Button()
+            button.set_relief(gtk.RELIEF_NONE)
+            button.set_image(icon)
+            button.set_name(str(i))
+            button.connect("clicked",self.clicked)
+            button.set_focus_on_click(False)
+            newtable.attach(button,0,1,i,i+1)
+        if self.table: self.vbox.remove(self.table)
+        self.vbox.pack_start(newtable)
+        self.table = newtable
 
-        def resizeLabel(self,label,alloc):
-            label.set_size_request(alloc.width,-1)
+    def resizeLabel(self,label,alloc):
+        label.set_size_request(alloc.width,-1)
 
-	def getconfig(self):
-		self.displaytweets = DISPLAYTWEETS
-		self.browser = BROWSER
-		self.interval = INTERVAL
-		self.composite = COMPOSITE
-		self.transparency = TRANSPARENCY
-		self.toolbarheight = TOOLBARHEIGHT
-		self.compositecolor = COMPOSITECOLOR
-		self.stackmode = STACKMODE
-                self.accesstoken = ACCESSTOKEN
-                self.notify = NOTIFY
-                self.iconpath = ICON
-                self.iconnewpath = ICONNEW
-		configfile = os.path.expanduser('~') + os.sep + '.fluxtwitterrc'
-		if os.path.isfile(configfile):
-                        print "reading config file"
-			file = open(configfile)
-			for line in file:
-				if not("#" in line):
-					key, value = line.split("=", 1)
-					key = key.strip()
-					value = value.strip()
-					if key == "displaytweets": self.displaytweets = int(value)
-					elif key == "browser": self.browser = value
-					elif key == "interval": self.interval = int(value)
-					elif key == "composite": self.composite = bool(int(value))
-					elif key == "transparency": self.transparency = int(value)
-					elif key == "toolbarheight": self.toolbarheight = int(value)
-					elif key == "compositecolor": self.compositecolor = string.atoi(value,0)
-					elif key == "stackmode": self.stackmode = bool(int(value))
-                                        elif key == "accesstoken": self.accesstoken = oauth.OAuthToken.from_string(value)
-                                        elif key == "notify": self.notify = bool(int(value))
-                                        elif key == "iconpath": self.iconpath = value
-                                        elif key == "iconnewpath": self.iconnewpath = value
-			file.close()
-		else:
-			print "Creating config file..."
-			self.writeconfig()
+    def getconfig(self):
+        self.displaytweets = DISPLAYTWEETS
+        self.browser = BROWSER
+        self.interval = INTERVAL
+        self.composite = COMPOSITE
+        self.transparency = TRANSPARENCY
+        self.toolbarheight = TOOLBARHEIGHT
+        self.compositecolor = COMPOSITECOLOR
+        self.stackmode = STACKMODE
+        self.accesstoken = ACCESSTOKEN
+        self.notify = NOTIFY
+        self.iconpath = ICON
+        self.iconnewpath = ICONNEW
+        configfile = os.path.expanduser('~') + os.sep + '.fluxtwitterrc'
+        if os.path.isfile(configfile):
+            print "reading config file"
+            file = open(configfile)
+            for line in file:
+                if not("#" in line):
+                    key, value = line.split("=", 1)
+                    key = key.strip()
+                    value = value.strip()
+                    if key == "displaytweets": self.displaytweets = int(value)
+                    elif key == "browser": self.browser = value
+                    elif key == "interval": self.interval = int(value)
+                    elif key == "composite": self.composite = bool(int(value))
+                    elif key == "transparency": self.transparency = int(value)
+                    elif key == "toolbarheight": self.toolbarheight = int(value)
+                    elif key == "compositecolor": self.compositecolor = string.atoi(value,0)
+                    elif key == "stackmode": self.stackmode = bool(int(value))
+                    elif key == "accesstoken": self.accesstoken = oauth.OAuthToken.from_string(value)
+                    elif key == "notify": self.notify = bool(int(value))
+                    elif key == "iconpath": self.iconpath = value
+                    elif key == "iconnewpath": self.iconnewpath = value
+            file.close()
+        else:
+            print "Creating config file..."
+            self.writeconfig()
 
-	def writeconfig(self):
-		configfile = os.path.expanduser('~') + os.sep + '.fluxtwitterrc'
-		file = open(configfile,'wb')
-		file.write('# Fluxtwitter configuration file\n')
-		file.write('# Number of tweets displayed (default 8)\n')
-		file.write('displaytweets = ' + str(self.displaytweets) + '\n')
-		file.write('# Browser command to open links (default x-www-browser) \n')
-		file.write('browser = ' + self.browser + '\n')
-		file.write('# Interval in seconds between twitter updates (default 120)\n')
-		file.write('interval = ' + str(self.interval) + '\n')
-		file.write('# Do we use pseudo-transparency?\n')
-		file.write('composite = '+ str(int(self.composite)) + '\n')
-		file.write('# Amount of image fading in percent\n')
-		file.write('transparency = '+ str(self.transparency) + '\n')
-		file.write('# Color to composite background with (0x00000000)\n')
-		file.write('compositecolor = '+str(self.compositecolor) + '\n')
-		file.write('# Window titlebar height correction in pixels\n')
-		file.write('toolbarheight = ' + str(self.toolbarheight) + '\n')
-		file.write('# Stack mode (if tweets will stack until you read them\n')
-		file.write('stackmode = ' + str(int(self.stackmode)) + '\n')
-		file.write('# Notify (use the notifications system\n')
-		file.write('notify = ' + str(int(self.notify)) + '\n')
-		file.write('# Idle icon\n')
-		file.write('iconpath = ' + str(self.iconpath) + '\n')
-		file.write('# New tweets icon\n')
-		file.write('iconnewpath = ' + str(self.iconnewpath) + '\n')
-                if self.accesstoken:
-                        file.write('# Access token (automatically generated once you allow it on twitter\n')
-                        file.write('accesstoken = ' + self.accesstoken.to_string() + '\n')
-		file.close()
+    def writeconfig(self):
+        configfile = os.path.expanduser('~') + os.sep + '.fluxtwitterrc'
+        file = open(configfile,'wb')
+        file.write('# Fluxtwitter configuration file\n')
+        file.write('# Number of tweets displayed (default 8)\n')
+        file.write('displaytweets = ' + str(self.displaytweets) + '\n')
+        file.write('# Browser command to open links (default x-www-browser) \n')
+        file.write('browser = ' + self.browser + '\n')
+        file.write('# Interval in seconds between twitter updates (default 120)\n')
+        file.write('interval = ' + str(self.interval) + '\n')
+        file.write('# Do we use pseudo-transparency?\n')
+        file.write('composite = '+ str(int(self.composite)) + '\n')
+        file.write('# Amount of image fading in percent\n')
+        file.write('transparency = '+ str(self.transparency) + '\n')
+        file.write('# Color to composite background with (0x00000000)\n')
+        file.write('compositecolor = '+str(self.compositecolor) + '\n')
+        file.write('# Window titlebar height correction in pixels\n')
+        file.write('toolbarheight = ' + str(self.toolbarheight) + '\n')
+        file.write('# Stack mode (if tweets will stack until you read them\n')
+        file.write('stackmode = ' + str(int(self.stackmode)) + '\n')
+        file.write('# Notify (use the notifications system\n')
+        file.write('notify = ' + str(int(self.notify)) + '\n')
+        file.write('# Idle icon\n')
+        file.write('iconpath = ' + str(self.iconpath) + '\n')
+        file.write('# New tweets icon\n')
+        file.write('iconnewpath = ' + str(self.iconnewpath) + '\n')
+        if self.accesstoken:
+                file.write('# Access token (automatically generated once you allow it on twitter\n')
+                file.write('accesstoken = ' + self.accesstoken.to_string() + '\n')
+        file.close()
 
-	def config(self,data):
-		dialog = gtk.Dialog()
-		dialog.set_title('Fluxtwitter settings')
-		table = gtk.Table(11,2)
-		c1 = gtk.Entry()
-		c1.set_text(str(self.displaytweets))
-		c1.set_tooltip_text('Number of tweets to display')
-		c2 = gtk.Entry()
-		c2.set_text(self.browser)
-		c2.set_tooltip_text('Web browser to open links in')
-		c3 = gtk.Entry()
-		c3.set_text(str(self.interval))
-		c3.set_tooltip_text('Interval in seconds between updates')
-		c4 = gtk.ToggleButton()
-		c4.set_active(self.composite)
-		c4.set_tooltip_text('Check this to use fluxbox pseudo-transparency')
-		c5 = gtk.Entry()
-		c5.set_text(str(self.transparency))
-		c5.set_tooltip_text('Fading level in percents')
-		c6 = gtk.Entry()
-		c6.set_text(str(self.toolbarheight))
-		c6.set_tooltip_text('Vertical correction in pixels')
-		c7 = gtk.Entry()
-		c7.set_text(str(self.compositecolor))
-		c7.set_tooltip_text('Composite color for transparency')
-		c8 = gtk.ToggleButton()
-		c8.set_active(self.stackmode)
-		c8.set_tooltip_text('Check this for tweets to stack until you read them')
-		c9 = gtk.ToggleButton()
-		c9.set_active(self.notify)
-		c9.set_tooltip_text('Check this to use the desktop notification system')
-		c10 = gtk.Entry()
-		c10.set_text(self.iconpath)
-		c10.set_tooltip_text('Icon for idle status. Use "builtin" for builtin icon')
-		c11 = gtk.Entry()
-		c11.set_text(self.iconnewpath)
-		c11.set_tooltip_text('Icon for new tweets. Use "builtin" for builtin icon')
-		table.attach(gtk.Label('Nr of tweets '),0,1,0,1)
-		table.attach(c1,1,2,0,1)
-		table.attach(gtk.Label('Web browser '),0,1,1,2)
-		table.attach(c2,1,2,1,2)
-		table.attach(gtk.Label('Interval '),0,1,2,3)
-		table.attach(c3,1,2,2,3)
-		table.attach(gtk.Label('Pseudo-transparency '),0,1,3,4)
-		table.attach(c4,1,2,3,4)
-		table.attach(gtk.Label('Fading '),0,1,4,5)
-		table.attach(c5,1,2,4,5)
-		table.attach(gtk.Label('Vertical correction '),0,1,5,6)
-		table.attach(c6,1,2,5,6)
-		table.attach(gtk.Label('Composite Color '),0,1,6,7)
-		table.attach(c7,1,2,6,7)
-		table.attach(gtk.Label('Stack mode '),0,1,7,8)
-		table.attach(c8,1,2,7,8)
-		table.attach(gtk.Label('Notify '),0,1,8,9)
-		table.attach(c9,1,2,8,9)
-		table.attach(gtk.Label('Idle icon '),0,1,9,10)
-		table.attach(c10,1,2,9,10)
-		table.attach(gtk.Label('New tweet icon '),0,1,10,11)
-		table.attach(c11,1,2,10,11)
-		dialog.vbox.pack_start(table)
-		dialog.show_all()
-		cancel_button = dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-		ok_button = dialog.add_button(gtk.STOCK_OK,gtk.RESPONSE_OK)
-		ok_button.grab_default()
-		resp = dialog.run()
-		if resp == gtk.RESPONSE_OK:
-			self.displaytweets = int(c1.get_text())
-			self.browser = c2.get_text()
-			self.interval = int(c3.get_text())
-			self.composite = c4.get_active()
-			self.transparency = int(c5.get_text())
-			self.toolbarheight = int(c6.get_text())
-			self.compositecolor = string.atoi(c7.get_text(),0)
-			self.stackmode = c8.get_active()
-                        self.notify = c9.get_active()
-                        self.iconpath = c10.get_text()
-                        self.iconnewpath = c11.get_text()
-			self.writeconfig()
-		dialog.destroy()
+    def config(self,data):
+        dialog = gtk.Dialog()
+        dialog.set_title('Fluxtwitter settings')
+        table = gtk.Table(11,2)
+        c1 = gtk.Entry()
+        c1.set_text(str(self.displaytweets))
+        c1.set_tooltip_text('Number of tweets to display')
+        c2 = gtk.Entry()
+        c2.set_text(self.browser)
+        c2.set_tooltip_text('Web browser to open links in')
+        c3 = gtk.Entry()
+        c3.set_text(str(self.interval))
+        c3.set_tooltip_text('Interval in seconds between updates')
+        c4 = gtk.ToggleButton()
+        c4.set_active(self.composite)
+        c4.set_tooltip_text('Check this to use fluxbox pseudo-transparency')
+        c5 = gtk.Entry()
+        c5.set_text(str(self.transparency))
+        c5.set_tooltip_text('Fading level in percents')
+        c6 = gtk.Entry()
+        c6.set_text(str(self.toolbarheight))
+        c6.set_tooltip_text('Vertical correction in pixels')
+        c7 = gtk.Entry()
+        c7.set_text(str(self.compositecolor))
+        c7.set_tooltip_text('Composite color for transparency')
+        c8 = gtk.ToggleButton()
+        c8.set_active(self.stackmode)
+        c8.set_tooltip_text('Check this for tweets to stack until you read them')
+        c9 = gtk.ToggleButton()
+        c9.set_active(self.notify)
+        c9.set_tooltip_text('Check this to use the desktop notification system')
+        c10 = gtk.Entry()
+        c10.set_text(self.iconpath)
+        c10.set_tooltip_text('Icon for idle status. Use "builtin" for builtin icon,or "fluxweather" for weather icon')
+        c11 = gtk.Entry()
+        c11.set_text(self.iconnewpath)
+        c11.set_tooltip_text('Icon for new tweets. Use "builtin" for builtin icon')
+        table.attach(gtk.Label('Nr of tweets '),0,1,0,1)
+        table.attach(c1,1,2,0,1)
+        table.attach(gtk.Label('Web browser '),0,1,1,2)
+        table.attach(c2,1,2,1,2)
+        table.attach(gtk.Label('Interval '),0,1,2,3)
+        table.attach(c3,1,2,2,3)
+        table.attach(gtk.Label('Pseudo-transparency '),0,1,3,4)
+        table.attach(c4,1,2,3,4)
+        table.attach(gtk.Label('Fading '),0,1,4,5)
+        table.attach(c5,1,2,4,5)
+        table.attach(gtk.Label('Vertical correction '),0,1,5,6)
+        table.attach(c6,1,2,5,6)
+        table.attach(gtk.Label('Composite Color '),0,1,6,7)
+        table.attach(c7,1,2,6,7)
+        table.attach(gtk.Label('Stack mode '),0,1,7,8)
+        table.attach(c8,1,2,7,8)
+        table.attach(gtk.Label('Notify '),0,1,8,9)
+        table.attach(c9,1,2,8,9)
+        table.attach(gtk.Label('Idle icon '),0,1,9,10)
+        table.attach(c10,1,2,9,10)
+        table.attach(gtk.Label('New tweet icon '),0,1,10,11)
+        table.attach(c11,1,2,10,11)
+        dialog.vbox.pack_start(table)
+        dialog.show_all()
+        cancel_button = dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        ok_button = dialog.add_button(gtk.STOCK_OK,gtk.RESPONSE_OK)
+        ok_button.grab_default()
+        resp = dialog.run()
+        if resp == gtk.RESPONSE_OK:
+            self.displaytweets = int(c1.get_text())
+            self.browser = c2.get_text()
+            self.interval = int(c3.get_text())
+            self.composite = c4.get_active()
+            self.transparency = int(c5.get_text())
+            self.toolbarheight = int(c6.get_text())
+            self.compositecolor = string.atoi(c7.get_text(),0)
+            self.stackmode = c8.get_active()
+            self.notify = c9.get_active()
+            self.iconpath = c10.get_text()
+            self.iconnewpath = c11.get_text()
+            self.writeconfig()
+        dialog.destroy()
 
         def getpin(self):
-                auth_url = self.api.getAuthorizationURL(self.request_token)
-                subprocess.Popen([self.browser,auth_url],shell=False)
-		dialog = gtk.Dialog()
-		dialog.set_title('Inform Twitter authorization PIN')
-		table = gtk.Table(2,1)
-		c1 = gtk.Entry()
-		c1.set_tooltip_text('The PIN number you received from twitter')
-		table.attach(gtk.Label('Twitter PIN '),0,1,0,1)
-		table.attach(c1,1,2,0,1)
-		dialog.vbox.pack_start(table)
-		dialog.show_all()
-		cancel_button = dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-		ok_button = dialog.add_button(gtk.STOCK_OK,gtk.RESPONSE_OK)
-		ok_button.grab_default()
-		resp = dialog.run()
-		if resp == gtk.RESPONSE_OK:
-			pin = c1.get_text()
-                        dialog.destroy()
-                        self.api = OAuthApi(CONSUMERKEY, CONSUMERSECRET, self.request_token)
-                        self.accesstoken = self.api.getAccessToken(pin)
-                        self.writeconfig()
-                        self.launch()
+            auth_url = self.api.getAuthorizationURL(self.request_token)
+            subprocess.Popen([self.browser,auth_url],shell=False)
+            dialog = gtk.Dialog()
+            dialog.set_title('Inform Twitter authorization PIN')
+            table = gtk.Table(2,1)
+            c1 = gtk.Entry()
+            c1.set_tooltip_text('The PIN number you received from twitter')
+            table.attach(gtk.Label('Twitter PIN '),0,1,0,1)
+            table.attach(c1,1,2,0,1)
+            dialog.vbox.pack_start(table)
+            dialog.show_all()
+            cancel_button = dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+            ok_button = dialog.add_button(gtk.STOCK_OK,gtk.RESPONSE_OK)
+            ok_button.grab_default()
+            resp = dialog.run()
+            if resp == gtk.RESPONSE_OK:
+                pin = c1.get_text()
+                dialog.destroy()
+                self.api = OAuthApi(CONSUMERKEY, CONSUMERSECRET, self.request_token)
+                self.accesstoken = self.api.getAccessToken(pin)
+                self.writeconfig()
+                self.launch()
 
 
-	def updateBackground(self,args=None,stuff=None):
-		if self.composite:
-                        print "rebuilding background"
-			x,y = self.tweetdialog.get_position()
-			w,h = self.tweetdialog.get_size()
-			bgfile = os.path.expanduser('~') + os.sep + '.fluxbox/lastwallpaper'
-			if os.path.isfile(bgfile):
-				wpfile = open(bgfile)
-				pb=gtk.gdk.pixbuf_new_from_file(wpfile.read().split('|')[1])
-				wpfile.close()
-				crop = gtk.gdk.Pixbuf( gtk.gdk.COLORSPACE_RGB, False, 8, w, h )
-				pb.copy_area(x, y+self.toolbarheight, w, h, crop, 0, 0)
-				mask = crop.copy()
-				mask.fill(self.compositecolor)
-				opacity = int((self.transparency/100.0)*255)
-				mask.composite(crop, 0, 0, w, h, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, opacity)
-				pm,m = crop.render_pixmap_and_mask(255)
-				style = self.tweetdialog.get_style().copy()
-				style.bg_pixmap[gtk.STATE_NORMAL] = pm
-				self.tweetdialog.set_style(style)
-				self.layout.get_child().set_style(style)
+    def updateBackground(self,args=None,stuff=None):
+        if self.composite:
+            print "rebuilding background"
+            x,y = self.tweetdialog.get_position()
+            w,h = self.tweetdialog.get_size()
+            bgfile = os.path.expanduser('~') + os.sep + '.fluxbox/lastwallpaper'
+            if os.path.isfile(bgfile):
+                wpfile = open(bgfile)
+                pb=gtk.gdk.pixbuf_new_from_file(wpfile.read().split('|')[1])
+                wpfile.close()
+                crop = gtk.gdk.Pixbuf( gtk.gdk.COLORSPACE_RGB, False, 8, w, h )
+                pb.copy_area(x, y+self.toolbarheight, w, h, crop, 0, 0)
+                mask = crop.copy()
+                mask.fill(self.compositecolor)
+                opacity = int((self.transparency/100.0)*255)
+                mask.composite(crop, 0, 0, w, h, 0, 0, 1, 1, gtk.gdk.INTERP_BILINEAR, opacity)
+                pm,m = crop.render_pixmap_and_mask(255)
+                style = self.tweetdialog.get_style().copy()
+                style.bg_pixmap[gtk.STATE_NORMAL] = pm
+                self.tweetdialog.set_style(style)
+                self.layout.get_child().set_style(style)
 
-	def clicked(self,data,url=None):
-		if data.name:
-			url="http://www.twitter.com/"+self.tweets[int(data.name)]['user']
-		print "clicked link:",url
-		self.tweetdialog.hide()
-		self.isTweet = False
-		self.tweets = self.tweets[:self.displaytweets]
-		self.rebuildTable()
-		subprocess.Popen([self.browser,url],shell=False)
+    def clicked(self,data,url=None):
+        if data.name:
+            url="http://www.twitter.com/"+self.tweets[int(data.name)]['user']
+            print "clicked link:",url
+            self.tweetdialog.hide()
+            self.isTweet = False
+            self.tweets = self.tweets[:self.displaytweets]
+            self.rebuildTable()
+            subprocess.Popen([self.browser,url],shell=False)
 
-	def close(self, data):
-		gobject.source_remove(self.timeout)
-		gtk.main_quit()
+    def close(self, data):
+        gobject.source_remove(self.timeout)
+        gtk.main_quit()
 
-	def popup_menu(self, status, button, time):
-		self.menu.popup(None, None, None, button, time)
+    def popup_menu(self, status, button, time):
+        self.menu.popup(None, None, None, button, time)
 
-	def about(self, data):
-		dialog = gtk.AboutDialog()
-		dialog.set_name('Fluxtwitter')
-		dialog.set_version('0.2')
-		dialog.set_comments('A system tray icon displaying twitter feed')
-		dialog.set_website('http://yorik.uncreated.net')
-		dialog.run()
-		dialog.destroy()
+    def about(self, data):
+        dialog = gtk.AboutDialog()
+        dialog.set_name('Fluxtwitter')
+        dialog.set_version('0.2')
+        dialog.set_comments('A system tray icon displaying twitter feed')
+        dialog.set_website('http://yorik.uncreated.net')
+        dialog.run()
+        dialog.destroy()
 
-	def showtimeline(self,data,event=None):
-		if self.isTweet:
-			self.tweetdialog.hide()
-			self.isTweet = False
-			self.tweets = self.tweets[:self.displaytweets]
-			self.rebuildTable()
-		else:
-			self.isTweet = True
-			self.tweetdialog.show_all()
-			self.set_from_pixbuf(self.icon)
-		return True
+    def showtimeline(self,data,event=None):
+        if self.isTweet:
+            self.tweetdialog.hide()
+            self.isTweet = False
+            self.tweets = self.tweets[:self.displaytweets]
+            self.rebuildTable()
+        else:
+            self.isTweet = True
+            self.tweetdialog.show_all()
+            self.set_from_pixbuf(self.icon)
+        return True
 
 if __name__ == '__main__':
         if len(sys.argv) == 1:
-                # no argument? GUI mode
-                TwitterStatusIcon()
-                gtk.main()
+            # no argument? GUI mode
+            TwitterStatusIcon()
+            gtk.main()
         else:
-                try:
-                        opts, args = getopt.getopt(sys.argv[1:], "th", ["text","help"])
-                except getopt.GetoptError:
-                        print "Unrecognized option."
-                        print __doc__
-                        sys.exit()
-                else:
-                        for o, a in opts:
-                                if o in ("-t", "--text"):
-                                        # with -t or --text? we output the last 5 tweets
-                                        accesstoken = ACCESSTOKEN
-                                        configfile = os.path.expanduser('~') + os.sep + '.fluxtwitterrc'
-                                        if os.path.isfile(configfile):
-                                                file = open(configfile)
-                                                for line in file:
-                                                        if not("#" in line):
-                                                                key, value = line.split("=", 1)
-                                                                key = key.strip()
-                                                                value = value.strip()
-                                                                if key == "accesstoken":
-                                                                        accesstoken = oauth.OAuthToken.from_string(value)
-                                                file.close()
-                                                api = OAuthApi(CONSUMERKEY, CONSUMERSECRET)
-                                                request_token = api.getRequestToken()
-                                                api = OAuthApi(CONSUMERKEY, CONSUMERSECRET, accesstoken)
-                                                statuses = api.GetFriendsTimeline(count=5)
-                                                for s in statuses:
-                                                        print s.user.name + " : " + s.text
-                                if o in ("-h", "--help"):
-                                       print __doc__
-                                       sys.exit()
+            try:
+                opts, args = getopt.getopt(sys.argv[1:], "th", ["text","help"])
+            except getopt.GetoptError:
+                print "Unrecognized option."
+                print __doc__
+                sys.exit()
+            else:
+                for o, a in opts:
+                    if o in ("-t", "--text"):
+                        # with -t or --text? we output the last 5 tweets
+                        accesstoken = ACCESSTOKEN
+                        configfile = os.path.expanduser('~') + os.sep + '.fluxtwitterrc'
+                        if os.path.isfile(configfile):
+                            file = open(configfile)
+                            for line in file:
+                                if not("#" in line):
+                                    key, value = line.split("=", 1)
+                                    key = key.strip()
+                                    value = value.strip()
+                                    if key == "accesstoken":
+                                        accesstoken = oauth.OAuthToken.from_string(value)
+                            file.close()
+                            api = OAuthApi(CONSUMERKEY, CONSUMERSECRET)
+                            request_token = api.getRequestToken()
+                            api = OAuthApi(CONSUMERKEY, CONSUMERSECRET, accesstoken)
+                            statuses = api.GetFriendsTimeline(count=5)
+                            for s in statuses:
+                                print s.user.name + " : " + s.text
+                    if o in ("-h", "--help"):
+                       print __doc__
+                       sys.exit()
