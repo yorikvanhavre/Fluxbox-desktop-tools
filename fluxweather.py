@@ -65,6 +65,12 @@ available options:
                        (condition + temperature)
                               '''
 
+def writeTemp(temp):
+    "writes the temperature to a temp file"
+    fil = open(os.path.expanduser('~') + os.sep + '.temperature','wb')
+    fil.write(str(temp))
+    fil.close()
+
 def fetchweather(zip=ZIPCODE):
     url = WEATHER_URL % zip
     rss = parse(urllib.urlopen(url)).getroot()
@@ -77,6 +83,7 @@ def fetchweather(zip=ZIPCODE):
             'condition': element.get('text')
         })
     ycondition = rss.find('channel/item/{%s}condition' % WEATHER_NS)
+    writeTemp(ycondition.get('temp'))
     return {
         'current_condition': ycondition.get('text'),
         'current_temp': ycondition.get('temp'),
@@ -119,7 +126,7 @@ def getToolTip(report=fetchweather()):
     return panel
 
 def getTemp():
-    "reads temperature from temp file"
+    "reads temperature from a temp file"
     t = ''
     if os.path.isfile(os.path.expanduser('~') + os.sep + '.temperature'):
         fil = open(os.path.expanduser('~') + os.sep + '.temperature')
@@ -196,7 +203,6 @@ class TrackerStatusIcon(gtk.StatusIcon):
                 pb = pbl.get_pixbuf()
                 pbl.close()
                 self.images.append(pb)
-        self.writeTemp(report['current_temp'])
         return True
 
     def getconfig(self):
@@ -233,12 +239,6 @@ class TrackerStatusIcon(gtk.StatusIcon):
         file.write('# by a number from 1 to the given number, making the map animated.\n')
         file.write('animated = ' + str(self.animated) + '\n')
         file.close()
-
-    def writeTemp(self,temp):
-        "writes the temperature to a temp file"
-        fil = open(os.path.expanduser('~') + os.sep + '.temperature','wb')
-        fil.write(str(temp))
-        fil.close()
 
     def close(self, data):
         gtk.timeout_remove(self.timeout)
