@@ -23,7 +23,7 @@
 #***************************************************************************
 
 '''
-Fluxtwitter 0.7 - 21.05.2012
+Fluxtwitter 0.8
 
 author: Yorik van Have
 url: http://yorik.uncreated.net
@@ -41,6 +41,7 @@ History:
 0.5 - 03.10.2010 - Implemented OAuth authentication
 0.6 - 19.08.2011 - Bugfixes and added text output option
 0.7 - 21.05.2012 - Added libnotify and custom icon
+0.8 - 11.12.2012 - Fix for new API urls
 
 Usage:
 
@@ -226,6 +227,11 @@ class OAuthApi(Api):
         Returns:
           A string containing the body of the response.
         '''
+        # hack for new API
+        if url == "http://twitter.com/statuses/friends_timeline.json":
+            url = "http://api.twitter.com/1/statuses/friends_timeline.json"
+        # print "fetching ",url
+        
         # Build the extra parameters dict
         extra_params = {}
         if self._default_params:
@@ -358,7 +364,7 @@ class OAuthApi(Api):
         token = oauth.OAuthToken.from_string(resp)
         return token
 
-    def GetUserInfo(self, url='https://twitter.com/account/verify_credentials.json'):
+    def GetUserInfo(self, url='https://api.twitter.com/1/account/verify_credentials.json'):
         '''Get user information from twitter
 
         Returns:
