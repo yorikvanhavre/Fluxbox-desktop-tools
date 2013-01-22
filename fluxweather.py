@@ -47,13 +47,11 @@ WEATHER_NS = 'http://xml.weather.yahoo.com/ns/rss/1.0'
 # from http://weather.yahoo.com
 ZIPCODE = 'BRXX0232'
 # below is the url of a weather map image to fetch, get it from same yahoo page.
-MAPURL='http://weather.yahoo.com/images/sa_satintl_440_mdy_y.jpg'
+MAPURL='http://imagens.climatempo.com.br/mapas/satelite/g12/br/br4Kbm#.jpg'
 # below is the number of animated images. 0 means no animation
 ANIM = 5
 # END CONFIGURATION
 
-AnimatedMapUrl1='http://image.weather.com/looper/archive/brazil_sat_277x187/#L.jpg'
-AnimatedMapUrl2='http://www4.climatempo.com.br/mapas/satelite/g12/br/br4Kbm#.jpg'
 HELPMSG = '''fluxweather [OPTIONS] : runs the fluxeather system tray app, or
 displays temperature or forecast information.
 
@@ -188,6 +186,8 @@ class TrackerStatusIcon(gtk.StatusIcon):
         self.set_from_pixbuf(getPixBuf(report))
         if not self.animated:
             imfile=urllib.urlopen(self.map)
+            print "opening ",self.map
+            print imfile
             pbl = gtk.gdk.PixbufLoader()
             pbl.write(imfile.read())
             pb = pbl.get_pixbuf()
